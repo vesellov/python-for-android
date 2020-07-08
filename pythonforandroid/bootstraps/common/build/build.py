@@ -745,6 +745,11 @@ tools directory of the Android SDK.
     ap.add_argument('--extra-manifest-xml', default='',
                     help=('Extra xml to write directly inside the <manifest> element of'
                           'AndroidManifest.xml'))
+    ap.add_argument('--network-security-config', dest='network_security_config', default='',
+                    help='Add a Network Security Configuration file path to AndroidManifest.xml')
+    ap.add_argument('--uses-cleartext-traffic', dest='uses_cleartext_traffic', default='',
+                    help='Indicate that app intends to use cleartext network traffic in AndroidManifest.xml')
+
 
     # Put together arguments, and add those from .p4a config file:
     if args is None:
