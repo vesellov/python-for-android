@@ -378,6 +378,9 @@ main.py that loads it.''')
     if not args.activity_launch_mode:
         args.activity_launch_mode = ''
 
+    # if not args.service_class_name:
+    #     args.service_class_name = 'org.kivy.android.PythonService'
+
     if args.extra_source_dirs:
         esd = []
         for spec in args.extra_source_dirs:
@@ -401,6 +404,7 @@ main.py that loads it.''')
             service = True
 
     service_names = []
+    base_service_class = args.service_class_name.split('.')[-1]
     for sid, spec in enumerate(args.services):
         spec = spec.split(':')
         name = spec[0]
@@ -425,6 +429,7 @@ main.py that loads it.''')
             foreground=foreground,
             sticky=sticky,
             service_id=sid + 1,
+            base_service_class=base_service_class,
         )
 
     # Find the SDK directory and target API
@@ -556,6 +561,7 @@ main.py that loads it.''')
 
 
 def parse_args_and_make_package(args=None):
+    print('parse_args_and_make_package', args)
     global BLACKLIST_PATTERNS, WHITELIST_PATTERNS, PYTHON
 
     # Get the default minsdk, equal to the NDK API that this dist is built against
@@ -749,13 +755,18 @@ tools directory of the Android SDK.
                     help='Add a Network Security Configuration file path to AndroidManifest.xml')
     ap.add_argument('--uses-cleartext-traffic', dest='uses_cleartext_traffic', default='',
                     help='Indicate that app intends to use cleartext network traffic in AndroidManifest.xml')
-
+    ap.add_argument('--service-class-name', dest='service_class_name', default='org.kivy.android.PythonService',
+                    help='Use that parameter if you need to implement your own PythonServive Java class')
+    ap.add_argument('--activity-class-name', dest='activity_class_name', default='org.kivy.android.PythonActivity',
+                    help='The full java class name of the main activity')
 
     # Put together arguments, and add those from .p4a config file:
     if args is None:
         args = sys.argv[1:]
+        print('args was empty, set from sys.argv')
 
     def _read_configuration():
+        print("Looking for p4a configuration file in %r" % os.path.abspath('.p4a'))
         if not exists(".p4a"):
             return
         print("Reading .p4a configuration")
@@ -765,10 +776,14 @@ tools directory of the Android SDK.
                  for line in lines if not line.startswith("#")]
         for line in lines:
             for arg in line:
+                print('Added option: %r' % arg)
                 args.append(arg)
     _read_configuration()
 
+    print('before parse_args', args)
     args = ap.parse_args(args)
+    print('after parse_args', args)
+
     args.ignore_path = []
 
     if args.name and args.name[0] == '"' and args.name[-1] == '"':
@@ -838,4 +853,5 @@ tools directory of the Android SDK.
 
 
 if __name__ == "__main__":
+    print('sys.argv', sys.argv)
     parse_args_and_make_package()

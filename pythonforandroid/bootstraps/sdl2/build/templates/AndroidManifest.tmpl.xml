@@ -116,7 +116,7 @@
         {% endif %}
 
         {% if service or args.launcher %}
-        <service android:name="org.kivy.android.PythonService"
+        <service android:name="{{ args.service_class_name }}"
                  android:process=":pythonservice" />
         {% endif %}
         {% for name in service_names %}

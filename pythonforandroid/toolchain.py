@@ -382,6 +382,21 @@ class ToolchainCL:
             help='The full java class name of the main activity')
 
         generic_parser.add_argument(
+            '--service-class-name',
+            dest='service_class_name', default='org.kivy.android.PythonService',
+            help='Full java package name of the PythonService class')
+
+        generic_parser.add_argument(
+            '--network-security-config',
+            dest='network_security_config', default=None,
+            help='Add a Network Security Configuration file path to AndroidManifest.xml')
+
+        generic_parser.add_argument(
+            '--uses-cleartext-traffic',
+            dest='uses_cleartext_traffic', default=None,
+            help='Indicate that app intends to use cleartext network traffic in AndroidManifest.xml')
+
+        generic_parser.add_argument(
             '--java-build-tool',
             dest='java_build_tool', default='auto',
             choices=['auto', 'ant', 'gradle'],
@@ -614,6 +629,14 @@ class ToolchainCL:
             args.unknown_args += ["--with-debug-symbols"]
         if hasattr(args, "ignore_setup_py") and args.ignore_setup_py:
             args.use_setup_py = False
+        if hasattr(args, "activity_class_name") and args.activity_class_name != 'org.kivy.android.PythonActivity':
+            args.unknown_args += ["--activity-class-name", args.activity_class_name]
+        if hasattr(args, "service_class_name") and args.service_class_name != 'org.kivy.android.PythonService':
+            args.unknown_args += ["--service-class-name", args.service_class_name]
+        if hasattr(args, "network_security_config") and args.network_security_config is not None:
+            args.unknown_args += ["--network-security-config", args.network_security_config]
+        if hasattr(args, "uses_cleartext_traffic") and args.uses_cleartext_traffic is not None:
+            args.unknown_args += ["--uses-cleartext-traffic", args.uses_cleartext_traffic]
 
         self.args = args
 
@@ -710,6 +733,7 @@ class ToolchainCL:
         self.ctx.copy_libs = args.copy_libs
 
         self.ctx.activity_class_name = args.activity_class_name
+        self.ctx.service_class_name = args.service_class_name
 
         # Each subparser corresponds to a method
         command = args.subparser_name.replace('-', '_')
@@ -1033,6 +1057,7 @@ class ToolchainCL:
             self.hook("before_apk_build")
             os.environ["ANDROID_API"] = str(self.ctx.android_api)
             build = imp.load_source('build', join(dist.dist_dir, 'build.py'))
+            print('unknown_args', args.unknown_args)
             build_args = build.parse_args_and_make_package(
                 args.unknown_args
             )
