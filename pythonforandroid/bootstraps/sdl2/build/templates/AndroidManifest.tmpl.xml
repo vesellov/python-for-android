@@ -65,6 +65,7 @@
                  android:usesCleartextTraffic="{{ args.uses_cleartext_traffic }}"
                  {% endif %}
                  android:theme="{{args.android_apptheme}}{% if not args.window %}.Fullscreen{% endif %}"
+                 android:requestLegacyExternalStorage="true"
                  android:hardwareAccelerated="true"
                  >
         {% for l in args.android_used_libs %}
